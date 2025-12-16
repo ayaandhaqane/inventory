@@ -5,9 +5,23 @@ import { Category } from "../types/category";
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
 });
-export async function fetchProducts() {
-  const { data } = await api.get<Product[]>("/products");
-  return data;
+
+
+
+export async function fetchProducts(
+  categoryId?: number
+    ): Promise<Product[]> {
+  const res = await api.get("/products", {
+    params: categoryId ? { categoryId } : {},
+  });
+
+  const data = res.data;
+
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.rows)) return data.rows;
+  if (Array.isArray(data.data)) return data.data;
+
+  return [];
 }
 
 export async function createProduct(formData: FormData) {

@@ -10,7 +10,8 @@ import {
   deleteProduct,
   fetchProducts,
   updateProduct,
-  createCategory
+  createCategory,
+  fetchCategories
 } from "../services/api";
 import { Product } from "../types/product";
 import {
@@ -23,6 +24,7 @@ import {
   Search,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { Category } from "../types/category";
 
 
 type StatCardProps = {
@@ -79,11 +81,20 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  const load = async () => {
+
+  useEffect(() => {
+    fetchCategories()
+      .then(setCategories)
+      .catch(console.error);
+  }, []);
+  
+  const load = async (categoryId?: number | null) => {
     setLoading(true);
     try {
-      const data = await fetchProducts();
+      const data = await fetchProducts(categoryId ?? undefined);
       setProducts(Array.isArray(data) ? data : []);
       setError(null);
     } catch (err) {
@@ -93,11 +104,11 @@ export default function Dashboard() {
       setLoading(false);
     }
   };
-
+  
   useEffect(() => {
-    load();
-  }, []);
-
+    load(selectedCategory);
+  }, [selectedCategory]);
+  
   const lowStockCount = useMemo(() => {
     return Array.isArray(products)
       ? products.filter((p) => p.quantity < 5).length
@@ -256,17 +267,29 @@ export default function Dashboard() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <button
-            onClick={() => {
-              setShowCategoryModal(true);
-            }
-            }
-             className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
-              <span className="text-slate-400">
-                <Filter className="h-4 w-4" />
-              </span>
-              <span className="text-slate-500">All categories</span>
-            </button>
+            <label htmlFor="categoryFilter" className="sr-only">
+  Filter by category
+</label>
+
+<select
+  id="categoryFilter"
+  value={selectedCategory ?? ""}
+  onChange={(e) =>
+    setSelectedCategory(
+      e.target.value ? Number(e.target.value) : null
+    )
+  }
+  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm"
+>
+  <option value="">All categories</option>
+  {categories.map((c) => (
+    <option key={c.id} value={c.id}>
+      {c.name}
+    </option>
+  ))}
+</select>
+
+
           </div>
           <button
             onClick={() => {
