@@ -6,14 +6,17 @@ import { Category } from "../models/category";
 export async function getCategories(_req: Request, res: Response) {
   try {
     const result = await pool.query(
-      "SELECT * FROM categories ORDER BY name ASC"
+      "SELECT id, name FROM categories ORDER BY name ASC"
     );
+
+    // ✅ send ARRAY only
     res.json(result.rows);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch categories" });
   }
 }
+
 
 // CREATE category
 export async function createCategory(req: Request, res: Response) {
