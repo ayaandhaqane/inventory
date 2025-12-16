@@ -2,10 +2,12 @@ import { Request, Response } from "express";
 import pool from "../database/connection";
 import { Product } from "../models/product";
 
-// GET all products (with category name)
-export async function getProducts(_req: Request, res: Response) {
+// GET all products
+export async function getProducts(req: Request, res: Response) {
   try {
-    const result = await pool.query(`
+    const { categoryId } = req.query;
+
+    let query = `
       SELECT 
         p.id,
         p.name,
@@ -17,15 +19,25 @@ export async function getProducts(_req: Request, res: Response) {
         c.name AS category
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      ORDER BY p.id ASC
-    `);
+    `;
 
+    const values: any[] = [];
+
+    if (categoryId) {
+      query += " WHERE p.category_id = $1";
+      values.push(categoryId);
+    }
+
+    query += " ORDER BY p.id ASC";
+
+    const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to fetch products." });
+    res.status(500).json({ error: "Failed to fetch products" });
   }
 }
+
 
 // CREATE product
 export async function createProduct(req: Request, res: Response) {

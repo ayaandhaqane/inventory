@@ -27,7 +27,7 @@ app.get("/health", (_req, res) => {
 
 app.use(
   "/uploads",
-  express.static(path.join(__dirname, "../uploads"))
+  express.static(path.join(__dirname, "..", "uploads"))
 );
 app.use("/api", productRoutes);
 app.use("/api", categoryRoutes);
