@@ -1,17 +1,10 @@
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config({
-  path: path.resolve(process.cwd(), ".env"),
-});
-
 import { Pool } from "pg";
 
 const pool = new Pool({
-  host: process.env.PGHOST,
-  port: Number(process.env.PGPORT),
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : false,
 });
 
 export default pool;
