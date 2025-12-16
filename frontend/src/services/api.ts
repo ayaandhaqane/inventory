@@ -3,9 +3,8 @@ import { Product } from "../types/product";
 import { Category } from "../types/category";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: "http://localhost:3000/api",
 });
-
 export async function fetchProducts() {
   const { data } = await api.get<Product[]>("/products");
   return data;

@@ -33,7 +33,7 @@ export default function ProductTable({ products, onEdit, onDelete }: Props) {
                   {product.description}
                 </td>
                 <td className="px-4 py-3 text-slate-700">
-                  ${product.price.toFixed(2)}
+                ${Number(product.price).toFixed(2)}
                 </td>
                 <td className="px-4 py-3 font-semibold">
                   <span

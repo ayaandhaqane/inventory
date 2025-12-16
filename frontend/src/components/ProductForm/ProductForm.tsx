@@ -71,22 +71,22 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-700 shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+    "w-full rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm";
 
-  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+  const labelClass = "block text-xs font-medium text-gray-700 mb-1";
 
   return (
-    <div className="w-full max-w-3xl rounded-xl bg-white p-6 shadow-lg">
-      <div className="mb-6 border-b pb-4">
-        <h3 className="text-xl font-bold text-gray-900">
+    <div className="w-full max-w-2xl rounded-lg bg-white p-4 shadow-md">
+      <div className="mb-4 border-b pb-2">
+        <h3 className="text-lg font-bold text-gray-900">
           {initial ? "Update Product" : "Create New Product"}
         </h3>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         {/* Name & Category in one row on larger screens */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
             <label htmlFor="name" className={labelClass}>
               Name
             </label>
@@ -101,31 +101,33 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
             />
           </div>
 
-          <div className="space-y-2">
-            <label htmlFor="category_id" className={labelClass}>
-              Category
-            </label>
-            <select
-              id="category_id"
-              name="category_id"
-              className={inputClass}
-              value={product.category_id}
-              onChange={handleChange}
-              required
-            >
-              <option value={0}>Select a category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+          <div className="space-y-1.5">
+          <label className="text-sm font-medium">
+  Category
+  <select
+    name="category_id"
+    className={inputClass}
+    value={product.category_id}
+    onChange={handleChange}
+    required
+  >
+    <option value={0}>Select a category</option>
+
+    {Array.isArray(categories) &&
+      categories.map((c) => (
+        <option key={c.id} value={c.id}>
+          {c.name}
+        </option>
+      ))}
+  </select>
+</label>
+
           </div>
         </div>
 
         {/* Price & Quantity in one row on larger screens */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
             <label htmlFor="price" className={labelClass}>
               Price ($)
             </label>
@@ -142,7 +144,7 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <label htmlFor="quantity" className={labelClass}>
               Quantity
             </label>
@@ -160,10 +162,10 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
         </div>
 
         {/* Image Upload */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label className={labelClass}>Image</label>
-          <div className="flex items-center gap-4">
-            <label className="cursor-pointer rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700">
+          <div className="flex items-center gap-3">
+            <label className="cursor-pointer rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-700">
               Choose File
               <input
                 type="file"
@@ -173,46 +175,46 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
                 accept="image/*"
               />
             </label>
-            <span className="text-sm text-gray-600">
+            <span className="text-xs text-gray-600">
               {selectedFile ? selectedFile.name : "No file chosen"}
             </span>
           </div>
         </div>
 
         {/* Description */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <label htmlFor="description" className={labelClass}>
             Description
           </label>
           <textarea
             id="description"
             name="description"
-            className={`min-h-[120px] ${inputClass}`}
+            className={`min-h-[100px] ${inputClass} py-2`}
             value={product.description}
             onChange={handleChange}
-            rows={4}
+            rows={3}
             placeholder="Enter a detailed description of the product"
           />
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             onClick={onCancelEdit}
-            className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-1.5">
                 <svg
-                  className="h-4 w-4 animate-spin"
+                  className="h-3 w-3 animate-spin"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"

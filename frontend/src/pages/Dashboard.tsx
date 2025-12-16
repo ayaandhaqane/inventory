@@ -67,11 +67,11 @@ function StatCard({
 
 export default function Dashboard() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [editing, setEditing] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [showForm, setShowForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -116,19 +116,37 @@ export default function Dashboard() {
   }, [products, search]);
 
   const handleSave = async (product: Product) => {
-    if (editing?.id) {
-      await updateProduct(editing.id, product);
-    } else {
-      await createProduct(product);
+    try {
+      if (editingProduct?.id) {
+        await updateProduct(editingProduct.id, product);
+      } else {
+        await createProduct(product);
+      }
+      await load();
+      setEditingProduct(null); // Close the edit modal
+      setShowAddForm(false); // Close the add modal
+    } catch (err) {
+      console.error(err);
+      setError("Failed to save product");
     }
-    setEditing(null);
-    setShowForm(false);
-    await load();
   };
 
   const handleDelete = async (id: number) => {
-    await deleteProduct(id);
-    await load();
+    try {
+      await deleteProduct(id);
+      await load();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to delete product");
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditingProduct(null);
   };
 
   return (
@@ -139,7 +157,7 @@ export default function Dashboard() {
             <h2 className="text-3xl font-bold text-slate-900">
               Inventory overview
             </h2>
-            <p className="muted">
+            <p className="text-sm text-slate-500">
               Keep a real-time pulse on products, value, and stock health with
               clean controls.
             </p>
@@ -204,10 +222,7 @@ export default function Dashboard() {
           </div>
           <button
             onClick={() => {
-              setEditing(null);
-              setShowForm(true);
-              const el = document.getElementById("add-product");
-              if (el) el.scrollIntoView({ behavior: "smooth" });
+              setShowAddForm(true);
             }}
             className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
           >
@@ -229,32 +244,46 @@ export default function Dashboard() {
         ) : (
           <ProductTable
             products={filteredProducts}
-            onEdit={(product) => setEditing(product)}
+            onEdit={handleEdit}
             onDelete={handleDelete}
           />
         )}
       </div>
 
-      {showForm && (
+      {/* Edit Product Modal */}
+      {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
           <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
             <button
               aria-label="Close"
               className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
-              onClick={() => {
-                setEditing(null);
-                setShowForm(false);
-              }}
+              onClick={handleCloseEditModal}
             >
               ✕
             </button>
             <ProductForm
-              initial={editing}
+              initial={editingProduct}
               onSave={handleSave}
-              onCancelEdit={() => {
-                setEditing(null);
-                setShowForm(false);
-              }}
+              onCancelEdit={handleCloseEditModal}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Add Product Modal */}
+      {showAddForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+            <button
+              aria-label="Close"
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+              onClick={() => setShowAddForm(false)}
+            >
+              ✕
+            </button>
+            <ProductForm
+              onSave={handleSave}
+              onCancelEdit={() => setShowAddForm(false)}
             />
           </div>
         </div>
@@ -262,4 +291,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
