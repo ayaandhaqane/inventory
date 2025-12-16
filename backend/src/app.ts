@@ -9,8 +9,9 @@ dotenv.config({
 
 
 import express from "express";
-
-
+import productRoutes from "./routes/productRoutes";
+import pool from "./database/connection";
+import categoryRoutes from "./routes/categoryRoutes"
 
 
 const app = express();
@@ -24,8 +25,21 @@ app.get("/health", (_req, res) => {
 });
 
 
+app.use("/api", productRoutes);
+app.use("/api", categoryRoutes);
+
 
 async function ensureTables() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS products (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      price NUMERIC(10,2) NOT NULL CHECK (price >= 0),
+      image TEXT,
+      quantity INTEGER NOT NULL CHECK (quantity >= 0)
+    );
+  `);
 }
 
 ensureTables()
