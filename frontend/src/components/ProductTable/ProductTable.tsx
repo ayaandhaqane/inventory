@@ -19,6 +19,7 @@ export default function ProductTable({ products, onEdit, onDelete }: Props) {
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>
               <th className="px-4 py-3 text-left font-semibold">Name</th>
+              <th className="px-4 py-3 text-left font-semibold">Category</th> 
               <th className="px-4 py-3 text-left font-semibold">Description</th>
               <th className="px-4 py-3 text-left font-semibold">Price</th>
               <th className="px-4 py-3 text-left font-semibold">Quantity</th>
@@ -31,6 +32,10 @@ export default function ProductTable({ products, onEdit, onDelete }: Props) {
                 <td className="px-4 py-3 font-semibold text-ink">
                   {product.name}
                 </td>
+                <td className="px-4 py-3 text-slate-700">
+                  {product.category ?? "—"}
+                </td>
+
                 <td className="px-4 py-3 text-slate-600">
                   {product.description}
                 </td>
