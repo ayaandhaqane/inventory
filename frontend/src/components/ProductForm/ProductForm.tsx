@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Product } from "../../types/product";
 import { Category } from "../../types/category";
 import { fetchCategories } from "../../services/api";
@@ -13,23 +13,19 @@ const emptyProduct: Product = {
   name: "",
   description: "",
   price: 0,
-  category_id: 0,
-  image: "",
   quantity: 0,
+  category_id: 0,
 };
 
 export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
   const [product, setProduct] = useState<Product>(initial ?? emptyProduct);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  //Load categories from backend
   useEffect(() => {
     fetchCategories()
-      .then(setCategories)
-      .catch(console.error);
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch(() => setCategories([]));
   }, []);
 
   useEffect(() => {
@@ -37,9 +33,7 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
   }, [initial]);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
 
@@ -58,94 +52,92 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
     await onSave(product);
     setLoading(false);
     setProduct(emptyProduct);
-    setSelectedFile(null);
   };
 
-  const inputClass =
-    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-2";
-
   return (
-    <div className="w-full max-w-3xl rounded-2xl bg-white p-6 shadow-xl">
-      <form className="grid gap-4" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="grid gap-4">
+      {/* NAME */}
+      <div>
+        <label htmlFor="name">Product Name</label>
         <input
+          id="name"
           name="name"
-          className={inputClass}
-          placeholder="e.g. Wireless Headphones"
           value={product.name}
+          onChange={handleChange}
+          placeholder="e.g. Wireless Headphones"
+          required
+        />
+      </div>
+
+      {/* CATEGORY */}
+      <div>
+        <label htmlFor="category_id">Category</label>
+        <select
+          id="category_id"
+          name="category_id"
+          value={product.category_id}
+          onChange={handleChange}
+          required
+        >
+          <option value={0}>Select category</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* PRICE */}
+      <div>
+        <label htmlFor="price">Price</label>
+        <input
+          id="price"
+          type="number"
+          name="price"
+          min={0}
+          step="0.01"
+          value={product.price}
           onChange={handleChange}
           required
         />
+      </div>
 
-        {/* CATEGORY  */}
-        <label className="text-sm font-medium" title="Category">
-          <span>Category</span>
-          <select
-            name="category_id"
-            className={inputClass}
-            value={product.category_id}
-            onChange={handleChange}
-            required
-          >
-            <option value={0}>Select a category</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-
-        {/* PRICE */}
-        <label className="text-sm font-medium" title="Price">
-         <span>Price</span>
-          <input
-            name="price"
-            type="number"
-            min={0}
-            step="0.01"
-            className={inputClass}
-            value={product.price}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        {/* QUANTITY */}
-        <label className="text-sm font-medium" title="Quantity">
-          <span>Quantity</span>
+      {/* QUANTITY */}
+      <div>
+        <label htmlFor="quantity">Quantity</label>
         <input
-          name="quantity"
+          id="quantity"
           type="number"
+          name="quantity"
           min={0}
-          className={inputClass}
           value={product.quantity}
           onChange={handleChange}
           required
         />
-        </label>
+      </div>
 
-        {/* DESCRIPTION */}
-        <label className="text-sm font-medium" title="Description">
-          <span>Description</span>
+      {/* DESCRIPTION */}
+      <div>
+        <label htmlFor="description">Description</label>
         <textarea
+          id="description"
           name="description"
-          className={inputClass}
+          rows={4}
           value={product.description}
           onChange={handleChange}
-          rows={4}
         />
-        </label>
+      </div>
 
-        <div className="flex justify-end gap-3">
-          <button type="button" onClick={onCancelEdit}>
-            Cancel
-          </button>
-          <button type="submit" disabled={loading}>
-            {initial ? "Update" : "Create"}
-          </button>
-        </div>
-      </form>
-    </div>
+      {/* ACTIONS */}
+      <div className="flex gap-2 justify-end">
+        <button type="button" onClick={onCancelEdit}>
+          Cancel
+        </button>
+        <button type="submit" disabled={loading}>
+          {initial ? "Update" : "Create"}
+        </button>
+      </div>
+    </form>
   );
 }
