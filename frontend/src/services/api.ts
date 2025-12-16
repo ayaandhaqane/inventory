@@ -3,7 +3,7 @@ import { Product } from "../types/product";
 import { Category } from "../types/category";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: "https://inventory-backend-kcnd.onrender.com/api",
 });
 
 
