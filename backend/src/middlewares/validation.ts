@@ -1,29 +1,31 @@
 import { Request, Response, NextFunction } from "express";
-import { Product } from "../models/product";
 
 export function validateProduct(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const { name, price, quantity } = req.body as Partial<Product>;
+  const { name, category_id, description, price, quantity } = req.body;
 
-  if (!name || typeof name !== "string" || !name.trim()) {
+  if (!name || !name.trim()) {
     return res.status(400).json({ error: "Name is required." });
   }
 
-  if (price === undefined || Number.isNaN(Number(price)) || Number(price) < 0) {
-    return res.status(400).json({ error: "Price must be a non-negative number." });
+  if (!category_id || isNaN(Number(category_id))) {
+    return res.status(400).json({ error: "Category is required." });
   }
 
-  if (
-    quantity === undefined ||
-    !Number.isInteger(Number(quantity)) ||
-    Number(quantity) < 0
-  ) {
-    return res.status(400).json({ error: "Quantity must be a non-negative integer." });
+  if (!description || !description.trim()) {
+    return res.status(400).json({ error: "Description is required." });
+  }
+
+  if (price === undefined || isNaN(Number(price)) || Number(price) < 0) {
+    return res.status(400).json({ error: "Price must be a valid number." });
+  }
+
+  if (quantity === undefined || isNaN(Number(quantity)) || Number(quantity) < 0) {
+    return res.status(400).json({ error: "Quantity must be a valid number." });
   }
 
   next();
 }
-

@@ -29,8 +29,14 @@ export async function getProducts(_req: Request, res: Response) {
 
 // CREATE product
 export async function createProduct(req: Request, res: Response) {
-  const { name, category_id, description, price, image, quantity } =
+  const { name, category_id, description, price, quantity } =
     req.body as Product;
+
+  if (!req.file) {
+    return res.status(400).json({ error: "Product image is required." });
+  }
+
+  const imagePath = `/uploads/${req.file.filename}`;
 
   try {
     const result = await pool.query(
@@ -42,9 +48,9 @@ export async function createProduct(req: Request, res: Response) {
       [
         name.trim(),
         category_id,
-        description ?? "",
+        description,
         price,
-        image ?? "",
+        imagePath,
         quantity,
       ]
     );
@@ -56,13 +62,31 @@ export async function createProduct(req: Request, res: Response) {
   }
 }
 
+
+// UPDATE product
 // UPDATE product
 export async function updateProduct(req: Request, res: Response) {
   const { id } = req.params;
-  const { name, category_id, description, price, image, quantity } =
+  const { name, category_id, description, price, quantity } =
     req.body as Product;
 
   try {
+    // 1️⃣ Get existing product
+    const existing = await pool.query(
+      "SELECT image FROM products WHERE id = $1",
+      [id]
+    );
+
+    if (existing.rowCount === 0) {
+      return res.status(404).json({ error: "Product not found." });
+    }
+
+    // 2️⃣ Decide image
+    const imagePath = req.file
+      ? `/uploads/${req.file.filename}`
+      : existing.rows[0].image;
+
+    // 3️⃣ Update
     const result = await pool.query(
       `
       UPDATE products
@@ -78,17 +102,13 @@ export async function updateProduct(req: Request, res: Response) {
       [
         name.trim(),
         category_id,
-        description ?? "",
+        description,
         price,
-        image ?? "",
+        imagePath,
         quantity,
         id,
       ]
     );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Product not found." });
-    }
 
     res.json(result.rows[0]);
   } catch (error) {
@@ -96,6 +116,7 @@ export async function updateProduct(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to update product." });
   }
 }
+
 
 // DELETE product
 export async function deleteProduct(req: Request, res: Response) {
