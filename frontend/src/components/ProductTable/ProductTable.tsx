@@ -33,7 +33,7 @@ export default function ProductTable({ products, onEdit, onDelete }: Props) {
                   {product.name}
                 </td>
                 <td className="px-4 py-3 text-slate-700">
-                  {product.category ?? "—"}
+                  {product.category_name ?? "—"}
                 </td>
 
                 <td className="px-4 py-3 text-slate-600">

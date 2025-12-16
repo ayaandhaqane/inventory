@@ -41,19 +41,29 @@ app.listen(port, () => {
 async function ensureTables() {
   try {
     await pool.query(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL
+      );
+    `);
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description TEXT,
         price NUMERIC(10,2) NOT NULL CHECK (price >= 0),
         image TEXT,
-        quantity INTEGER NOT NULL CHECK (quantity >= 0)
+        quantity INTEGER NOT NULL CHECK (quantity >= 0),
+        category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL
       );
     `);
-    console.log("Database tables ensured");
+
+    console.log("✅ Database tables ensured");
   } catch (error) {
-    console.error("Database setup failed:", error);
+    console.error("❌ Database setup failed:", error);
   }
 }
+
 
 ensureTables();

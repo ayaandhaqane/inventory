@@ -5,7 +5,7 @@ import { Product } from "../models/product";
 // GET all products
 export async function getProducts(req: Request, res: Response) {
   try {
-    const { categoryId } = req.query;
+    const { category_id } = req.query;
 
     let query = `
       SELECT 
@@ -16,16 +16,16 @@ export async function getProducts(req: Request, res: Response) {
         p.image,
         p.quantity,
         p.category_id,
-        c.name AS category
+        c.name AS category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
     `;
 
     const values: any[] = [];
 
-    if (categoryId) {
+    if (category_id) {
       query += " WHERE p.category_id = $1";
-      values.push(categoryId);
+      values.push(category_id);
     }
 
     query += " ORDER BY p.id ASC";
