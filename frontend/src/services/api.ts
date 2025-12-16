@@ -28,11 +28,19 @@ export async function deleteProduct(id: number) {
 
 
 
-
 export async function fetchCategories(): Promise<Category[]> {
-  const { data } = await api.get<Category[]>("/categories");
-  return data;
+  const res = await api.get("/categories");
+
+  const data = res.data;
+
+  // ✅ Always return array
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data.rows)) return data.rows;
+  if (Array.isArray(data.data)) return data.data;
+
+  return [];
 }
+
 
 export async function createCategory(name: string): Promise<Category> {
   const { data } = await api.post<Category>("/categories", { name });
