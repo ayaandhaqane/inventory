@@ -1,32 +1,125 @@
-Inventory Management Dashboard
+# Inventory Management System
 
-This project is a simple full-stack inventory management system built for a small business to track product stock. The goal is to demonstrate clean code, logical structure, and thoughtful design rather than heavy features.
+A full-stack Inventory Management System that allows users to manage products and categories, monitor stock levels, and track inventory value in real time.
 
-Features
-- View all products in a clean dashboard
-- Add, edit, and delete products
-- Visual low-stock alerts for items with quantity below 5
-- Stock level analytics using charts
-- Basic validation to prevent invalid data entry
+The project consists of:
+- A **React + TypeScript** frontend
+- A **Node.js + Express** backend
+- A **PostgreSQL** database
 
-Tech Stack
-- Frontend: React with TypeScript; Recharts for data visualization; simple CSS or Tailwind for styling
-- Backend: Node.js with Express; RESTful API architecture
-- Database: PostgreSQL
+---
 
-Why This Stack?
-React with TypeScript keeps components predictable and reduces bugs as the project grows. Node.js with Express is lightweight, easy to structure as a REST API, and fits small-to-medium apps. PostgreSQL provides relational integrity and is production-friendly while still straightforward to run locally (local install or Docker).
+## 🚀 Features
 
-Installation & Running Locally
-1) Clone the repository
-2) Install dependencies for both frontend and backend
-3) Start the PostgreSQL database (local or Docker) and set env vars
-4) Start the backend server
-5) Start the frontend application
-6) Open the app in your browser
+- Add, update, and delete products
+- Manage product categories
+- Track product quantity and low-stock items
+- Upload and display product images
+- RESTful API integration
+- Responsive and clean dashboard UI
 
-(Exact commands are documented in the respective folders.)
+---
 
-Notes
-The project emphasizes clarity, simplicity, and correctness. The structure is designed to be easily extendable for future features.
+## 🛠️ Tech Stack
 
+### Frontend
+- **React**
+- **TypeScript**
+- **Axios**
+- **Tailwind CSS**
+- **Lucide React Icons**
+
+### Backend
+- **Node.js**
+- **Express.js**
+- **TypeScript**
+- **Multer** (image uploads)
+
+### Database
+- **PostgreSQL**
+
+### Deployment
+- **Vercel** (Frontend)
+- **Render** (Backend & Database)
+
+---
+
+## 🤔 Why This Tech Stack?
+
+- **React + TypeScript**  
+  Chosen for strong type safety, scalability, and maintainability. TypeScript reduces runtime errors and improves code quality.
+
+- **Node.js + Express**  
+  Provides a fast, lightweight backend with a simple structure for building REST APIs.
+
+- **PostgreSQL**  
+  A reliable relational database that supports complex queries, relationships, and data integrity.
+
+- **Render & Vercel**  
+  Easy cloud deployment with minimal configuration and free hosting suitable for academic projects.
+
+---
+
+## 📦 Installation & Running Locally
+
+### 1️⃣ Clone the Repository
+```bash
+-- git clone https://github.com/your-username/inventory-management.git
+-- cd inventory-management
+### 2️⃣ Backend Setup
+-- cd backend
+-- npm install
+
+Create a .env file inside the backend folder:
+
+PORT=8000
+DATABASE_URL=postgresql://username:password@localhost:5432/inventory
+NODE_ENV=development
+
+### Start the backend server:
+-- npm run dev
+
+### Backend will run at:
+
+-- http://localhost:8000
+
+### 3️⃣ Frontend Setup
+cd frontend
+npm install
+npm run dev
+
+Frontend will run at:
+http://localhost:5173
+
+### API Endpoints
+**API Endpoints
+Products
+
+GET /api/products
+
+POST /api/products
+
+PUT /api/products/:id
+
+DELETE /api/products/:id
+
+Categories
+
+GET /api/categories
+
+POST /api/categories
+
+PUT /api/categories/:id
+
+DELETE /api/categories/:idProducts
+GET /api/products
+POST /api/products
+PUT /api/products/:id
+DELETE /api/products/:id
+
+Categories
+
+GET /api/categories
+POST /api/categories
+PUT /api/categories/:id
+DELETE /api/categories/:id
