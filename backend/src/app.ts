@@ -46,6 +46,9 @@ async function ensureTables() {
   `);
 }
 
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 // Start server
 ensureTables()

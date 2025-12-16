@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "types": ["vite/client"]
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
-  "include": ["src", "src/vite-env.d.ts"]
+  "include": ["src"]
 }

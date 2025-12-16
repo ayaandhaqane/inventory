@@ -3,7 +3,7 @@ import { Product } from "../types/product";
 import { Category } from "../types/category";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 
