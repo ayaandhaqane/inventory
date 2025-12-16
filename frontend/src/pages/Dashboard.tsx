@@ -3,21 +3,27 @@ import ProductForm from "../components/ProductForm/ProductForm";
 import ProductTable from "../components/ProductTable/ProductTable";
 import StockChart from "../components/StockChart/StockChart";
 import LowStockChart from "../components/StockChart/LowStockChart";
+import CategoryModal from "../components/CategoryModal/CategoryModal"; 
+
 import {
   createProduct,
   deleteProduct,
   fetchProducts,
   updateProduct,
+  createCategory
 } from "../services/api";
 import { Product } from "../types/product";
 import {
   AlertTriangle,
   DollarSign,
   Filter,
+  FolderPlus,
   Package,
   Plus,
   Search,
 } from "lucide-react";
+import Swal from "sweetalert2";
+
 
 type StatCardProps = {
   icon?: React.ReactNode;
@@ -72,6 +78,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -115,31 +122,62 @@ export default function Dashboard() {
     return products.filter((p) => p.name.toLowerCase().includes(term));
   }, [products, search]);
 
-  const handleSave = async (product: Product) => {
+  const handleSave = async (formData: FormData) => {
     try {
       if (editingProduct?.id) {
-        await updateProduct(editingProduct.id, product);
+        await updateProduct(editingProduct.id, formData);
       } else {
-        await createProduct(product);
+        await createProduct(formData);
       }
       await load();
-      setEditingProduct(null); // Close the edit modal
-      setShowAddForm(false); // Close the add modal
+      setEditingProduct(null);
+      setShowAddForm(false);
     } catch (err) {
       console.error(err);
       setError("Failed to save product");
     }
   };
+  
 
   const handleDelete = async (id: number) => {
-    try {
-      await deleteProduct(id);
-      await load();
-    } catch (err) {
-      console.error(err);
-      setError("Failed to delete product");
-    }
-  };
+  const result = await Swal.fire({
+    title: "Delete product?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#6366f1", // indigo
+    cancelButtonColor: "#ef4444",  // red
+    confirmButtonText: "Yes, delete",
+    cancelButtonText: "Cancel",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await deleteProduct(id);
+    await load();
+
+    Swal.fire({
+      title: "Deleted!",
+      text: "Product has been deleted successfully.",
+      icon: "success",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (err) {
+    console.error(err);
+
+    Swal.fire({
+      title: "Error",
+      text: "Failed to delete product.",
+      icon: "error",
+    });
+
+    setError("Failed to delete product");
+  }
+};
+
+
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
@@ -147,6 +185,11 @@ export default function Dashboard() {
 
   const handleCloseEditModal = () => {
     setEditingProduct(null);
+  };
+
+  const handleCreateCategory = async (name: string) => {
+    await createCategory(name);
+    setShowCategoryModal(false);
   };
 
   return (
@@ -213,7 +256,12 @@ export default function Dashboard() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
+            <button
+            onClick={() => {
+              setShowCategoryModal(true);
+            }
+            }
+             className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
               <span className="text-slate-400">
                 <Filter className="h-4 w-4" />
               </span>
@@ -227,6 +275,13 @@ export default function Dashboard() {
             className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Product
+          </button>
+          <button
+            onClick={() => setShowCategoryModal(true)}
+            className="inline-flex items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-100"
+          >
+            <FolderPlus className="mr-2 h-4 w-4" />
+            Add Category
           </button>
         </div>
       </div>
@@ -288,6 +343,14 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+      {/* Add Category Modal */}
+{showCategoryModal && (
+  <CategoryModal
+    onCreate={handleCreateCategory}
+    onClose={() => setShowCategoryModal(false)}
+  />
+)}
+
     </div>
   );
 }

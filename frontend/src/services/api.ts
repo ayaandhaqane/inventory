@@ -10,13 +10,22 @@ export async function fetchProducts() {
   return data;
 }
 
-export async function createProduct(product: Product) {
-  const { data } = await api.post<Product>("/products", product);
+export async function createProduct(formData: FormData) {
+  const { data } = await api.post("/products", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return data;
 }
 
-export async function updateProduct(id: number, product: Product) {
-  const { data } = await api.put<Product>(`/products/${id}`, product);
+
+export async function updateProduct(id: number, formData: FormData) {
+  const { data } = await api.put(`/products/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return data;
 }
 

@@ -1,4 +1,6 @@
 import { Product } from "../../types/product";
+import { Pencil, Trash2 } from "lucide-react";
+
 
 type Props = {
   products: Product[];
@@ -48,18 +50,26 @@ export default function ProductTable({ products, onEdit, onDelete }: Props) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                  <button
-                    className="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-                    onClick={() => onEdit(product)}
-                  >
-                      Edit
-                    </button>
-                    <button
-                    className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50"
-                      onClick={() => product.id && onDelete(product.id!)}
-                    >
-                      Delete
-                    </button>
+                  <div className="flex gap-2">
+                      {/* Edit */}
+                      <button
+                        onClick={() => onEdit(product)}
+                        title="Edit"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-700"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => product.id && onDelete(product.id)}
+                        title="Delete"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-red-600 shadow-sm transition hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+
                   </div>
                 </td>
               </tr>

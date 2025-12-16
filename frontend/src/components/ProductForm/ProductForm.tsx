@@ -4,10 +4,11 @@ import { Category } from "../../types/category";
 import { fetchCategories } from "../../services/api";
 
 type Props = {
-  onSave: (product: Product) => Promise<void> | void;
+  onSave: (data: FormData) => Promise<void> | void;
   initial?: Product | null;
   onCancelEdit?: () => void;
 };
+
 
 const emptyProduct: Product = {
   name: "",
@@ -23,7 +24,9 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   // Load categories from backend
   useEffect(() => {
@@ -34,7 +37,19 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
 
   useEffect(() => {
     setProduct(initial ?? emptyProduct);
+  
+    if (initial?.image) {
+      const imageUrl = initial.image.startsWith("http")
+        ? initial.image
+        : `http://localhost:3000${initial.image}`;
+  
+      setImagePreview(imageUrl);
+    } else {
+      setImagePreview(null);
+    }
   }, [initial]);
+  
+  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -50,30 +65,68 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    await onSave(product);
-    setLoading(false);
-    setProduct(emptyProduct);
-    setSelectedFile(null);
-  };
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const newErrors: Record<string, boolean> = {};
+
+  if (!product.name.trim()) newErrors.name = true;
+  if (!product.category_id) newErrors.category_id = true;
+  if (product.price <= 0) newErrors.price = true;
+  if (product.quantity < 0) newErrors.quantity = true;
+  if (!(product.description ?? "").trim()) newErrors.description = true;
+  if (!selectedFile && !initial?.image) newErrors.image = true;
+
+  setErrors(newErrors);
+
+  if (Object.keys(newErrors).length > 0) return;
+
+  setLoading(true);
+
+const formData = new FormData();
+formData.append("name", product.name);
+formData.append("category_id", String(product.category_id));
+formData.append("description", product.description ?? "");
+formData.append("price", String(product.price));
+formData.append("quantity", String(product.quantity));
+
+if (selectedFile) {
+  formData.append("image", selectedFile);
+}
+
+await onSave(formData);
+
+setLoading(false);
+
+};
+
+  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-      setSelectedFile(file);
-      setProduct((prev) => ({
-        ...prev,
-        image: URL.createObjectURL(file),
-      }));
+    const file = event.target.files?.[0];
+    if (!file) return;
+  
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files are allowed (JPG, PNG, WEBP)");
+      event.target.value = "";
+      return;
     }
+  
+    setSelectedFile(file);
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  
+  
   };
+  
 
   const inputClass =
-    "w-full rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm";
+    "w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
 
-  const labelClass = "block text-xs font-medium text-gray-700 mb-1";
+  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+  const errorClass =
+  "border-red-500 focus:border-red-500 focus:ring-red-100";
+
 
   return (
     <div className="w-full max-w-2xl rounded-lg bg-white p-4 shadow-md">
@@ -83,7 +136,7 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
         </h3>
       </div>
 
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         {/* Name & Category in one row on larger screens */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -91,37 +144,41 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
               Name
             </label>
             <input
-              id="name"
-              name="name"
-              className={inputClass}
-              placeholder="e.g. Wireless Headphones"
-              value={product.name}
-              onChange={handleChange}
-              required
-            />
+  id="name"
+  name="name"
+  className={`${inputClass} ${errors.name ? errorClass : ""}`}
+  value={product.name}
+  onChange={handleChange}
+/>
+
+{errors.name && (
+  <p className="text-xs text-red-600 mt-1">
+    Product name is required
+  </p>
+)}
+
           </div>
 
           <div className="space-y-1.5">
-          <label className="text-sm font-medium">
-  Category
-  <select
-    name="category_id"
-    className={inputClass}
-    value={product.category_id}
-    onChange={handleChange}
-    required
-  >
-    <option value={0}>Select a category</option>
-
-    {Array.isArray(categories) &&
-      categories.map((c) => (
-        <option key={c.id} value={c.id}>
-          {c.name}
-        </option>
-      ))}
-  </select>
-</label>
-
+            <label htmlFor="category_id" className={labelClass}>
+              Category
+            </label>
+            <select
+              id="category_id"
+              name="category_id"
+              className={`${inputClass} ${errors.category_id ? errorClass : ""}`}
+              value={product.category_id}
+              onChange={handleChange}
+              
+            >
+              <option value={0}>Select a category</option>
+              {Array.isArray(categories) &&
+                categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+            </select>
           </div>
         </div>
 
@@ -137,10 +194,10 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
               type="number"
               min="0"
               step="0.01"
-              className={inputClass}
+              className={`${inputClass} ${errors.price ? errorClass : ""}`}
               value={product.price}
               onChange={handleChange}
-              required
+              
             />
           </div>
 
@@ -153,15 +210,15 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
               name="quantity"
               type="number"
               min="0"
-              className={inputClass}
+              className={`${inputClass} ${errors.quantity ? errorClass : ""}`}
               value={product.quantity}
               onChange={handleChange}
-              required
+              
             />
           </div>
         </div>
 
-        {/* Image Upload */}
+        {/* Image Upload and Preview */}
         <div className="space-y-1.5">
           <label className={labelClass}>Image</label>
           <div className="flex items-center gap-3">
@@ -173,12 +230,23 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
                 onChange={handleFileChange}
                 className="hidden"
                 accept="image/*"
+                
               />
             </label>
-            <span className="text-xs text-gray-600">
-              {selectedFile ? selectedFile.name : "No file chosen"}
+            <span className={`text-xs ${errors.image ? "text-red-600" : "text-gray-600"}`}>
+              {errors.image ? "Image is required" : selectedFile?.name || "No file chosen"}
             </span>
+
           </div>
+          {imagePreview && (
+            <div className="mt-2">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="h-32 w-auto rounded-md object-cover"
+              />
+            </div>
+          )}
         </div>
 
         {/* Description */}
@@ -189,7 +257,8 @@ export default function ProductForm({ onSave, initial, onCancelEdit }: Props) {
           <textarea
             id="description"
             name="description"
-            className={`min-h-[100px] ${inputClass} py-2`}
+            
+            className={`${inputClass} ${errors.description ? errorClass : ""}`}
             value={product.description}
             onChange={handleChange}
             rows={3}
