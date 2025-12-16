@@ -17,6 +17,7 @@ import categoryRoutes from "./routes/categoryRoutes"
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Enable CORS middleware
 app.use(cors());
 app.use(express.json());
 
@@ -28,7 +29,7 @@ app.get("/health", (_req, res) => {
 app.use("/api", productRoutes);
 app.use("/api", categoryRoutes);
 
-
+// Ensure required database tables exist before starting server
 async function ensureTables() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS products (
@@ -42,6 +43,8 @@ async function ensureTables() {
   `);
 }
 
+
+// Start server
 ensureTables()
   .then(() => {
     app.listen(port, () => {
