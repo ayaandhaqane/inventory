@@ -15,7 +15,7 @@ import categoryRoutes from "./routes/categoryRoutes"
 
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8000;
 
 // Enable CORS middleware
 app.use(cors());
