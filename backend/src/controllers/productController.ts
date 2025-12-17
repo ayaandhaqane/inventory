@@ -40,17 +40,67 @@ export async function getProducts(req: Request, res: Response) {
 
 
 // CREATE product
+// export async function createProduct(req: Request, res: Response) {
+//   const { name, category_id, description, price, quantity } =
+//     req.body as Product;
+
+//   if (!req.file) {
+//     return res.status(400).json({ error: "Product image is required." });
+//   }
+
+//   const imagePath = req.file.path; // This is the path to the image in the server
+
+//   try {
+//     const result = await pool.query(
+//       `
+//       INSERT INTO products (name, category_id, description, price, image, quantity)
+//       VALUES ($1, $2, $3, $4, $5, $6)
+//       RETURNING *
+//       `,
+//       [
+//         name.trim(),
+//         category_id,
+//         description,
+//         price,
+//         imagePath,
+//         quantity,
+//       ]
+//     );
+
+//     res.status(201).json(result.rows[0]);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Failed to create product." });
+//   }
+// }
+
+
 export async function createProduct(req: Request, res: Response) {
-  const { name, category_id, description, price, quantity } =
-    req.body as Product;
-
-  if (!req.file) {
-    return res.status(400).json({ error: "Product image is required." });
-  }
-
-  const imagePath = req.file.path; // This is the path to the image in the server
+  console.log(" CREATE PRODUCT HIT");
 
   try {
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    if (!req.file) {
+      console.log(" NO FILE RECEIVED");
+      return res.status(400).json({ error: "Product image is required." });
+    }
+
+    const { name, category_id, description, price, quantity } = req.body;
+
+    console.log(" TYPES:", {
+      nameType: typeof name,
+      categoryType: typeof category_id,
+      priceType: typeof price,
+      quantityType: typeof quantity,
+    });
+
+    const imagePath = req.file.path;
+    console.log("CLOUDINARY URL:", imagePath);
+
+    console.log("INSERTING INTO DB...");
+
     const result = await pool.query(
       `
       INSERT INTO products (name, category_id, description, price, image, quantity)
@@ -59,20 +109,27 @@ export async function createProduct(req: Request, res: Response) {
       `,
       [
         name.trim(),
-        category_id,
-        description,
-        price,
+        Number(category_id),
+        description.trim(),
+        Number(price),
         imagePath,
-        quantity,
+        Number(quantity),
       ]
     );
 
+    console.log(" DB INSERT SUCCESS:", result.rows[0]);
+
     res.status(201).json(result.rows[0]);
   } catch (error) {
+    console.error(" CREATE PRODUCT ERROR:");
     console.error(error);
     res.status(500).json({ error: "Failed to create product." });
   }
 }
+
+
+
+
 
 
 // UPDATE product

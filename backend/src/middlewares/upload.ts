@@ -18,10 +18,18 @@ export const upload = multer({
     fileSize: 2 * 1024 * 1024, // 2MB
   },
   fileFilter(req, file, cb) {
+    console.log("📸 FILE RECEIVED:", {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+    });
+  
     if (!file.mimetype.startsWith("image/")) {
+      console.log("❌ INVALID FILE TYPE");
       cb(new Error("Only image files allowed"));
     } else {
       cb(null, true);
     }
   },
+  
 });
