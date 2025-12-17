@@ -76,7 +76,6 @@ export async function createProduct(req: Request, res: Response) {
 
 
 // UPDATE product
-// UPDATE product
 export async function updateProduct(req: Request, res: Response) {
   const { id } = req.params;
   const { name, category_id, description, price, quantity } =
@@ -94,9 +93,9 @@ export async function updateProduct(req: Request, res: Response) {
     }
 
     // 2️⃣ Decide image
-    const imagePath = req.file
-    ? req.file.path
-    : existing.rows[0].image;
+     const imagePath = req.file
+      ? req.file.path
+      : existing.rows[0].image; 
 
     // 3️⃣ Update
     const result = await pool.query(
