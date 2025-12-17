@@ -11,7 +11,7 @@ import { upload } from "../middlewares/upload";
 const router = Router();
 
 router.get("/products", getProducts);
-router.post("/products", upload.single("image"),  validateProduct, createProduct
+router.post( "/products",  upload.single("image"),  validateProduct, createProduct
 );
 
 router.put( "/products/:id", upload.single("image"),  validateProduct, updateProduct

@@ -48,7 +48,7 @@ export async function createProduct(req: Request, res: Response) {
     return res.status(400).json({ error: "Product image is required." });
   }
 
-  const imagePath = `/uploads/${req.file.filename}`;
+  const imagePath = req.file.path; // This is the path to the image in the server
 
   try {
     const result = await pool.query(
@@ -95,8 +95,8 @@ export async function updateProduct(req: Request, res: Response) {
 
     // 2️⃣ Decide image
     const imagePath = req.file
-      ? `/uploads/${req.file.filename}`
-      : existing.rows[0].image;
+    ? req.file.path
+    : existing.rows[0].image;
 
     // 3️⃣ Update
     const result = await pool.query(
